@@ -1,0 +1,107 @@
+#!/bin/bash
+
+one(){
+	clear
+	echo "Pack current folder, ~/backupToGit/container to ~/backupToGit/backup"
+	echo ""
+	echo "Creating folders if need .."
+	mkdir -p ~/backupToGit/backup
+	mkdir -p ~/backupToGit/container
+
+	cd ~/backupToGit/backup
+	echo "Creating backup for pack.7z ..."
+	if mv pack.7z pack_backup_$(date +%F_%R).7z
+		then
+			echo "Created success: pack_backup_$(date +%F_%R).7z"
+		fi
+
+	cd ../container
+	rm -rf ~/backupToGit/container/java/test/target
+
+	echo "Enter password for 7z arch:"
+	read -s PassFirst
+	echo ""
+	echo "Again:"
+	read -s PassFinal
+
+	if [ "$PassFirst" = "$PassFinal" ] ; then
+		#команды тут
+		# echo "pass: $PassFinal"
+		7z a -t7z -mx9 -mfb=64 -md=32m -ms=on -mhe=on -p$PassFinal ~/backupToGit/backup/pack.7z ~/backupToGit/container
+		fi #конец сравнения
+
+
+
+
+	# 4. Пушим
+	cd ~/backupToGit/backup/
+	git pull
+	git add pack.7z
+	git commit -m "Update"
+	git push origin master
+	cd ~
+}
+
+two(){
+	clear
+	echo ""
+	echo "Creating folders if need .."
+	mkdir -p ~/backupToGit/backup
+	mkdir -p ~/backupToGit/container
+
+	cd ~/backupToGit/backup
+	echo "Creating backup for pack.7z ..."
+	if mv pack.7z pack_backup_$(date +%F_%R).7z
+		then
+			echo "Created success: pack_backup_$(date +%F_%R).7z"
+		fi
+
+	cd ../container
+	wget https://github.com/belthazore/backup/raw/master/pack.7z
+	7z x pack.7z
+	echo "Download and extract end"
+}
+
+three(){
+	clear
+	echo ""
+	echo "Downloading pack.7z ..."
+	wget https://github.com/belthazore/backup/raw/master/pack.7z
+	echo ""
+	echo "Download success ..."
+	echo ""
+	7z x pack.7z
+	echo ""
+	echo ""
+	echo "Extract end"
+	echo "Deleting pack.7z .."
+	rm pack.7z
+	echo "Deleting DONE .."
+	echo "Bye :)"
+}
+
+
+
+
+echo ""
+echo ""
+echo "Starting 7z&Push at"
+echo "$(date +%F-%R)"
+echo ""
+echo "Menu: "
+echo "1. (not tested) Pack current folder '.' to ~/backupToGit/backup"
+echo "2. (not tested) pack"
+echo "3. git pull"
+echo ""
+echo "Your choice:"
+
+read CHOICE
+
+
+
+case $CHOICE in
+     1) one   ;;
+     # 2) two   ;;
+     2) echo "NOT TESTED !" ;;
+     3) three ;;
+esac
